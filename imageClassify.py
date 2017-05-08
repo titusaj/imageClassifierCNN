@@ -6,6 +6,7 @@ from keras.layers import Activation, Dropout, Flatten, Dense
 from keras.preprocessing.image import ImageDataGenerator
 from keras.layers import Convolution2D, MaxPooling2D, ZeroPadding2D
 from keras import optimizers
+from keras import metrics
 
 #dimensions of the images used in training
 img_width, img_height = 150, 150
@@ -20,8 +21,8 @@ datagen =  ImageDataGenerator(rescale = 1./255)
 #automatically retrive images and their classes for train and validation sets
 train_generator = datagen.flow_from_directory(
     train_data_dir,
-    target_size = (img_width, img_height)
-    batch_size = 16
+    target_size = (img_width, img_height),
+    batch_size = 16,
     class_mode = 'binary'
 )
 
@@ -31,6 +32,7 @@ validation_generator = datagen.flow_from_directory(
     batch_size = 32,
     class_mode = 'binary'
 )
+
 
 #Small CNN
 #Model architecture definition
@@ -56,8 +58,8 @@ model.add(Dense(1))
 model.add(Activation('sigmoid'))
 
 model.compile(loss='binary_crossentropy',
-              optomizer= 'rmsprop',
-              metrics = ['accuracy'])
+              optimizer='rmsprop',
+              metrics=['mae', 'acc'])
              
 #Training
 nb_epoch = 30
@@ -71,6 +73,10 @@ model.fit_generator(
     validation_data = validation_generator, 
     nb_val_samples = nb_validation_samples)
     
+
+model.save_weights('models/basic_cnn_30_epochs.h5')
+
+model.evaluate_generator(validation_generator, nb_validation_samples)
 
 
 
